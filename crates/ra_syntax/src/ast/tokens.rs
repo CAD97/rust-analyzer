@@ -1,9 +1,11 @@
 //! There are many AstNodes, but only a few tokens, so we hand-write them here.
 
+use std::convert::TryFrom;
+
 use crate::{
     ast::AstToken,
     SyntaxKind::{COMMENT, RAW_STRING, STRING, WHITESPACE},
-    SyntaxToken, TextRange, TextUnit,
+    SyntaxToken, TextRange, TextSize,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -124,14 +126,14 @@ impl QuoteOffsets {
             return None;
         }
 
-        let start = TextUnit::from(0);
-        let left_quote = TextUnit::from_usize(left_quote) + TextUnit::of_char('"');
-        let right_quote = TextUnit::from_usize(right_quote);
-        let end = TextUnit::of_str(literal);
+        let start = TextSize::from(0);
+        let left_quote = TextSize::try_from(left_quote).unwrap() + TextSize::of('"');
+        let right_quote = TextSize::try_from(right_quote).unwrap();
+        let end = TextSize::of(literal);
 
         let res = QuoteOffsets {
-            quotes: [TextRange::from_to(start, left_quote), TextRange::from_to(right_quote, end)],
-            contents: TextRange::from_to(left_quote, right_quote),
+            quotes: [TextRange::new(start, left_quote), TextRange::new(right_quote, end)],
+            contents: TextRange::new(left_quote, right_quote),
         };
         Some(res)
     }
@@ -226,7 +228,7 @@ impl HasStringValue for RawString {
 impl RawString {
     pub fn map_range_up(&self, range: TextRange) -> Option<TextRange> {
         let contents_range = self.text_range_between_quotes()?;
-        assert!(range.is_subrange(&TextRange::offset_len(0.into(), contents_range.len())));
+        assert!(contents_range.contains_range(range));
         Some(range + contents_range.start())
     }
 }

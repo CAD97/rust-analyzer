@@ -92,8 +92,8 @@ mod tests {
         [
             CompletionItem {
                 label: "the_field",
-                source_range: [94; 94),
-                delete: [94; 94),
+                source_range: 94..94,
+                delete: 94..94,
                 insert: "the_field",
                 kind: Field,
                 detail: "u32",
@@ -123,8 +123,8 @@ mod tests {
         [
             CompletionItem {
                 label: "foo()",
-                source_range: [187; 187),
-                delete: [187; 187),
+                source_range: 187..187,
+                delete: 187..187,
                 insert: "foo()$0",
                 kind: Method,
                 lookup: "foo",
@@ -132,8 +132,8 @@ mod tests {
             },
             CompletionItem {
                 label: "the_field",
-                source_range: [187; 187),
-                delete: [187; 187),
+                source_range: 187..187,
+                delete: 187..187,
                 insert: "the_field",
                 kind: Field,
                 detail: "(u32,)",
@@ -163,8 +163,8 @@ mod tests {
         [
             CompletionItem {
                 label: "foo()",
-                source_range: [126; 126),
-                delete: [126; 126),
+                source_range: 126..126,
+                delete: 126..126,
                 insert: "foo()$0",
                 kind: Method,
                 lookup: "foo",
@@ -172,8 +172,8 @@ mod tests {
             },
             CompletionItem {
                 label: "the_field",
-                source_range: [126; 126),
-                delete: [126; 126),
+                source_range: 126..126,
+                delete: 126..126,
                 insert: "the_field",
                 kind: Field,
                 detail: "(u32, i32)",
@@ -220,24 +220,24 @@ mod tests {
         [
             CompletionItem {
                 label: "crate_field",
-                source_range: [313; 313),
-                delete: [313; 313),
+                source_range: 313..313,
+                delete: 313..313,
                 insert: "crate_field",
                 kind: Field,
                 detail: "u32",
             },
             CompletionItem {
                 label: "pub_field",
-                source_range: [313; 313),
-                delete: [313; 313),
+                source_range: 313..313,
+                delete: 313..313,
                 insert: "pub_field",
                 kind: Field,
                 detail: "u32",
             },
             CompletionItem {
                 label: "super_field",
-                source_range: [313; 313),
-                delete: [313; 313),
+                source_range: 313..313,
+                delete: 313..313,
                 insert: "super_field",
                 kind: Field,
                 detail: "u32",
@@ -265,8 +265,8 @@ mod tests {
         [
             CompletionItem {
                 label: "the_method()",
-                source_range: [144; 144),
-                delete: [144; 144),
+                source_range: 144..144,
+                delete: 144..144,
                 insert: "the_method()$0",
                 kind: Method,
                 lookup: "the_method",
@@ -298,8 +298,8 @@ mod tests {
         [
             CompletionItem {
                 label: "the_method()",
-                source_range: [243; 243),
-                delete: [243; 243),
+                source_range: 243..243,
+                delete: 243..243,
                 insert: "the_method()$0",
                 kind: Method,
                 lookup: "the_method",
@@ -331,8 +331,8 @@ mod tests {
         [
             CompletionItem {
                 label: "the_method()",
-                source_range: [256; 256),
-                delete: [256; 256),
+                source_range: 256..256,
+                delete: 256..256,
                 insert: "the_method()$0",
                 kind: Method,
                 lookup: "the_method",
@@ -360,8 +360,8 @@ mod tests {
         [
             CompletionItem {
                 label: "the_method()",
-                source_range: [151; 151),
-                delete: [151; 151),
+                source_range: 151..151,
+                delete: 151..151,
                 insert: "the_method()$0",
                 kind: Method,
                 lookup: "the_method",
@@ -389,8 +389,8 @@ mod tests {
         [
             CompletionItem {
                 label: "the_method()",
-                source_range: [155; 155),
-                delete: [155; 155),
+                source_range: 155..155,
+                delete: 155..155,
                 insert: "the_method()$0",
                 kind: Method,
                 lookup: "the_method",
@@ -421,8 +421,8 @@ mod tests {
         [
             CompletionItem {
                 label: "the_method()",
-                source_range: [219; 219),
-                delete: [219; 219),
+                source_range: 219..219,
+                delete: 219..219,
                 insert: "the_method()$0",
                 kind: Method,
                 lookup: "the_method",
@@ -473,8 +473,8 @@ mod tests {
         [
             CompletionItem {
                 label: "the_method()",
-                source_range: [249; 249),
-                delete: [249; 249),
+                source_range: 249..249,
+                delete: 249..249,
                 insert: "the_method()$0",
                 kind: Method,
                 lookup: "the_method",
@@ -500,16 +500,16 @@ mod tests {
         [
             CompletionItem {
                 label: "0",
-                source_range: [75; 75),
-                delete: [75; 75),
+                source_range: 75..75,
+                delete: 75..75,
                 insert: "0",
                 kind: Field,
                 detail: "i32",
             },
             CompletionItem {
                 label: "1",
-                source_range: [75; 75),
-                delete: [75; 75),
+                source_range: 75..75,
+                delete: 75..75,
                 insert: "1",
                 kind: Field,
                 detail: "f64",
@@ -543,8 +543,8 @@ mod tests {
         [
             CompletionItem {
                 label: "blah()",
-                source_range: [299; 300),
-                delete: [299; 300),
+                source_range: 299..300,
+                delete: 299..300,
                 insert: "blah()$0",
                 kind: Method,
                 lookup: "blah",
@@ -570,8 +570,8 @@ mod tests {
         [
             CompletionItem {
                 label: "the_field",
-                source_range: [106; 106),
-                delete: [106; 106),
+                source_range: 106..106,
+                delete: 106..106,
                 insert: "the_field",
                 kind: Field,
                 detail: "u32",
@@ -604,8 +604,8 @@ mod tests {
         [
             CompletionItem {
                 label: "await",
-                source_range: [74; 74),
-                delete: [74; 74),
+                source_range: 74..74,
+                delete: 74..74,
                 insert: "await",
                 detail: "expr.await",
             },
@@ -636,15 +636,15 @@ mod tests {
         [
             CompletionItem {
                 label: "A",
-                source_range: [217; 217),
-                delete: [217; 217),
+                source_range: 217..217,
+                delete: 217..217,
                 insert: "A",
                 kind: Const,
             },
             CompletionItem {
                 label: "b",
-                source_range: [217; 217),
-                delete: [217; 217),
+                source_range: 217..217,
+                delete: 217..217,
                 insert: "b",
                 kind: Module,
             },
@@ -669,8 +669,8 @@ mod tests {
         [
             CompletionItem {
                 label: "the_field",
-                source_range: [156; 157),
-                delete: [156; 157),
+                source_range: 156..157,
+                delete: 156..157,
                 insert: "the_field",
                 kind: Field,
                 detail: "u32",
@@ -696,8 +696,8 @@ mod tests {
         [
             CompletionItem {
                 label: "the_field",
-                source_range: [156; 157),
-                delete: [156; 157),
+                source_range: 156..157,
+                delete: 156..157,
                 insert: "the_field",
                 kind: Field,
                 detail: "u32",
@@ -724,8 +724,8 @@ mod tests {
         [
             CompletionItem {
                 label: "the_field",
-                source_range: [156; 156),
-                delete: [156; 156),
+                source_range: 156..156,
+                delete: 156..156,
                 insert: "the_field",
                 kind: Field,
                 detail: "u32",
@@ -751,8 +751,8 @@ mod tests {
         [
             CompletionItem {
                 label: "the_field",
-                source_range: [162; 163),
-                delete: [162; 163),
+                source_range: 162..163,
+                delete: 162..163,
                 insert: "the_field",
                 kind: Field,
                 detail: "u32",
@@ -788,8 +788,8 @@ mod tests {
         [
             CompletionItem {
                 label: "the_field",
-                source_range: [552; 552),
-                delete: [552; 552),
+                source_range: 552..552,
+                delete: 552..552,
                 insert: "the_field",
                 kind: Field,
                 detail: "u32",
@@ -818,8 +818,8 @@ mod tests {
         [
             CompletionItem {
                 label: "the_method()",
-                source_range: [201; 201),
-                delete: [201; 201),
+                source_range: 201..201,
+                delete: 201..201,
                 insert: "the_method()$0",
                 kind: Method,
                 lookup: "the_method",

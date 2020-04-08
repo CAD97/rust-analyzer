@@ -1,6 +1,6 @@
 use ra_syntax::{
     ast::{self, AstNode},
-    SyntaxKind, SyntaxNode, TextUnit,
+    SyntaxKind, SyntaxNode, TextSize,
 };
 
 use crate::{Assist, AssistCtx, AssistId};
@@ -60,8 +60,8 @@ pub(crate) fn add_function(ctx: AssistCtx) -> Option<Assist> {
 }
 
 struct FunctionTemplate {
-    insert_offset: TextUnit,
-    cursor_offset: TextUnit,
+    insert_offset: TextSize,
+    cursor_offset: TextSize,
     fn_def: ast::SourceFile,
 }
 

@@ -73,8 +73,8 @@ mod tests {
         [
             CompletionItem {
                 label: "file_id: FileId",
-                source_range: [110; 114),
-                delete: [110; 114),
+                source_range: 110..114,
+                delete: 110..114,
                 insert: "file_id: FileId",
                 lookup: "file_id",
             },
@@ -97,8 +97,8 @@ mod tests {
         [
             CompletionItem {
                 label: "file_id: FileId",
-                source_range: [110; 114),
-                delete: [110; 114),
+                source_range: 110..114,
+                delete: 110..114,
                 insert: "file_id: FileId",
                 lookup: "file_id",
             },
@@ -124,8 +124,8 @@ mod tests {
         [
             CompletionItem {
                 label: "file_id: FileId",
-                source_range: [289; 293),
-                delete: [289; 293),
+                source_range: 289..293,
+                delete: 289..293,
                 insert: "file_id: FileId",
                 lookup: "file_id",
             },

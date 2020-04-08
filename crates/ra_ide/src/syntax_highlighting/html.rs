@@ -44,7 +44,7 @@ pub(crate) fn highlight_as_html(db: &RootDatabase, file_id: FileId, rainbow: boo
         let text = html_escape(&token.text());
         let ranges = could_intersect
             .iter()
-            .filter(|it| token.text_range().is_subrange(&it.range))
+            .filter(|it| it.range.contains_range(token.text_range()))
             .collect::<Vec<_>>();
         if ranges.is_empty() {
             buf.push_str(&text);

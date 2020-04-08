@@ -68,7 +68,7 @@ pub(crate) fn highlight(
         };
 
         // Element outside of the viewport, no need to highlight
-        if range_to_highlight.intersection(&event_range).is_none() {
+        if range_to_highlight.intersect(event_range).is_none() {
             continue;
         }
 
@@ -147,7 +147,7 @@ fn macro_call_range(macro_call: &ast::MacroCall) -> Option<TextRange> {
         }
     }
 
-    Some(TextRange::from_to(range_start, range_end))
+    Some(TextRange::new(range_start, range_end))
 }
 
 fn highlight_element(

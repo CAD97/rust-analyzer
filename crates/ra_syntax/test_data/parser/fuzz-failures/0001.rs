@@ -1,5 +1,5 @@
 use ra_syntax::{
-    File, TextRange, SyntaxNodeRef, TextUnit,
+    File, TextRange, SyntaxNodeRef, TextSize,
     SyntaxKind::*,
     algo::{find_leaf_at_offset, LeafAtOffset, find_covering_node, ancestors, Direction, siblings},
 };
@@ -36,24 +36,24 @@ pub(crate) fn extend(root: SyntaxNodeRef, range: TextRange) -> Option<TextRange>
     }
 }
 
-fn extend_ws(root: SyntaxNodeRef, ws: SyntaxNodeRef, offset: TextUnit) -> TextRange {
+fn extend_ws(root: SyntaxNodeRef, ws: SyntaxNodeRef, offset: TextSize) -> TextRange {
     let ws_text = ws.leaf_text().unwrap();
-    let suffix = TextRange::from_to(offset, ws.range().end()) - ws.range().start();
-    let prefix = TextRange::from_to(ws.range().start(), offset) - ws.range().start();
+    let suffix = TextRange::new(offset, ws.range().end()) - ws.range().start();
+    let prefix = TextRange::new(ws.range().start(), offset) - ws.range().start();
     let ws_suffix = &ws_text.as_str()[suffix];
     let ws_prefix = &ws_text.as_str()[prefix];
     if ws_text.contains("\n") && !ws_suffix.contains("\n") {
         if let Some(node) = ws.next_sibling() {
             let start = match ws_prefix.rfind('\n') {
-                Some(idx) => ws.range().start() + TextUnit::from((idx + 1) as u32),
+                Some(idx) => ws.range().start() + TextSize::from((idx + 1) as u32),
                 None => node.range().start()
             };
             let end = if root.text().char_at(node.range().end()) == Some('\n') {
-                node.range().end() + TextUnit::of_char('\n')
+                node.range().end() + TextSize::of('\n')
             } else {
                 node.range().end()
             };
-            return TextRange::from_to(start, end);
+            return TextRange::new(start, end);
         }
     }
     ws.range()
@@ -74,7 +74,7 @@ fn extend_comments(node: SyntaxNodeRef) -> Option<TextRange> {
     let left = adj_com[ments(node, Direction::Backward);
     let right = adj_comments(node, Direction::Forward);
     if left != right {
-        Some(TextRange::from_to(
+        Some(TextRange::new(
             left.range().start(),
             right.range().end(),
         ))

@@ -72,8 +72,8 @@ impl AtomTextEdit {
         AtomTextEdit::replace(range, String::new())
     }
 
-    pub fn insert(offset: TextUnit, text: String) -> AtomTextEdit {
-        AtomTextEdit::replace(TextRange::offset_len(offset, 0.into()), text)
+    pub fn insert(offset: TextSize, text: String) -> AtomTextEdit {
+        AtomTextEdit::replace(TextRange::at(offset, 0.into()), text)
     }
 }
 
@@ -123,8 +123,8 @@ impl AtomTextEdit {
         AtomTextEdit::replace(range, String::new())
     }
 
-    pub fn insert(offset: TextUnit, text: String) -> AtomTextEdit {
-        AtomTextEdit::replace(TextRange::offset_len(offset, 0.into()), text)
+    pub fn insert(offset: TextSize, text: String) -> AtomTextEdit {
+        AtomTextEdit::replace(TextRange::at(offset, 0.into()), text)
     }
 }
 
@@ -185,7 +185,7 @@ fn merge_errors(
         } else if e.offset > old_node.range().end() {
             res.push(SyntaxError {
                 msg: e.msg,
-                offset: e.offset + TextUnit::of_str(&edit.insert) - edit.delete.len(),
+                offset: e.offset + TextSize::of(&edit.insert) - edit.delete.len(),
             })
         }
     }

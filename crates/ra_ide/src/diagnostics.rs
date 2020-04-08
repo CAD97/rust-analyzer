@@ -167,7 +167,7 @@ fn text_edit_for_remove_unnecessary_braces_with_self_in_use_statement(
     if single_use_tree.path()?.segment()?.syntax().first_child_or_token()?.kind() == T![self] {
         let start = use_tree_list_node.prev_sibling_or_token()?.text_range().start();
         let end = use_tree_list_node.text_range().end();
-        let range = TextRange::from_to(start, end);
+        let range = TextRange::new(start, end);
         return Some(TextEdit::delete(range));
     }
     None
@@ -273,7 +273,7 @@ mod tests {
         assert!(
             diagnostic.range.start() <= file_position.offset
                 && diagnostic.range.end() >= file_position.offset,
-            "diagnostic range {} does not touch cursor position {}",
+            "diagnostic range {:?} does not touch cursor position {:?}",
             diagnostic.range,
             file_position.offset
         );
@@ -599,7 +599,7 @@ mod tests {
         [
             Diagnostic {
                 message: "unresolved module",
-                range: [0; 8),
+                range: 0..8,
                 fix: Some(
                     SourceChange {
                         label: "create module",

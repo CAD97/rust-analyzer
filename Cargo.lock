@@ -1135,7 +1135,7 @@ dependencies = [
 name = "ra_text_edit"
 version = "0.1.0"
 dependencies = [
- "text_unit",
+ "text-size",
 ]
 
 [[package]]
@@ -1278,12 +1278,11 @@ dependencies = [
 [[package]]
 name = "rowan"
 version = "0.9.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ea7cadf87a9d8432e85cb4eb86bd2e765ace60c24ef86e79084dcae5d1c5a19"
+source = "git+https://github.com/CAD97/rowan.git?branch=text-size#002c04184c8876731a1988fa3f2bb26743528227"
 dependencies = [
  "rustc-hash",
  "smol_str",
- "text_unit",
+ "text-size",
  "thin-dst",
 ]
 
@@ -1523,9 +1522,9 @@ dependencies = [
 
 [[package]]
 name = "termios"
-version = "0.3.1"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72b620c5ea021d75a735c943269bb07d30c9b77d6ac6b236bc8b5c496ef05625"
+checksum = "6f0fcee7b24a25675de40d5bb4de6e41b0df07bc9856295e7e2b3a3600c400c2"
 dependencies = [
  "libc",
 ]
@@ -1536,14 +1535,13 @@ version = "0.1.0"
 dependencies = [
  "difference",
  "serde_json",
- "text_unit",
+ "text-size",
 ]
 
 [[package]]
-name = "text_unit"
-version = "0.1.10"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "20431e104bfecc1a40872578dbc390e10290a0e9c35fffe3ce6f73c15a9dbfc2"
+name = "text-size"
+version = "0.99.0-dev.3"
+source = "git+https://github.com/rust-analyzer/text-size.git#be759853429f7572f654d249a5c97b682c1a675f"
 
 [[package]]
 name = "thin-dst"

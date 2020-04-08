@@ -9,5 +9,5 @@ publish = false
 doctest = false
 
 [dependencies]
-text_unit = "0.1.10"
+text-size = { version = "0.99.0-dev.3", git = "https://github.com/rust-analyzer/text-size.git" }
 

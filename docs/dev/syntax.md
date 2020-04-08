@@ -82,29 +82,29 @@ Points of note:
 An input like `fn f() { 90 + 2 }` might be parsed as
 
 ```
-FN_DEF@[0; 17)
-  FN_KW@[0; 2) "fn"
-  WHITESPACE@[2; 3) " "
-  NAME@[3; 4)
-    IDENT@[3; 4) "f"
-  PARAM_LIST@[4; 6)
-    L_PAREN@[4; 5) "("
-    R_PAREN@[5; 6) ")"
-  WHITESPACE@[6; 7) " "
-  BLOCK_EXPR@[7; 17)
-    BLOCK@[7; 17)
-      L_CURLY@[7; 8) "{"
-      WHITESPACE@[8; 9) " "
-      BIN_EXPR@[9; 15)
-        LITERAL@[9; 11)
-          INT_NUMBER@[9; 11) "90"
-        WHITESPACE@[11; 12) " "
-        PLUS@[12; 13) "+"
-        WHITESPACE@[13; 14) " "
-        LITERAL@[14; 15)
-          INT_NUMBER@[14; 15) "2"
-      WHITESPACE@[15; 16) " "
-      R_CURLY@[16; 17) "}"
+FN_DEF@0..17
+  FN_KW@0..2 "fn"
+  WHITESPACE@2..3 " "
+  NAME@3..4
+    IDENT@3..4 "f"
+  PARAM_LIST@4..6
+    L_PAREN@4..5 "("
+    R_PAREN@5..6 ")"
+  WHITESPACE@6..7 " "
+  BLOCK_EXPR@7..17
+    BLOCK@7..17
+      L_CURLY@7..8 "{"
+      WHITESPACE@8..9 " "
+      BIN_EXPR@9..15
+        LITERAL@9..11
+          INT_NUMBER@9..11 "90"
+        WHITESPACE@11..12 " "
+        PLUS@12..13 "+"
+        WHITESPACE@13..14 " "
+        LITERAL@14..15
+          INT_NUMBER@14..15 "2"
+      WHITESPACE@15..16 " "
+      R_CURLY@16..17 "}"
 ```
 
 #### Optimizations
@@ -132,7 +132,7 @@ That is, it's not an index into interning table, so you don't have to have the t
 Each tree is fully self-contained (although different trees might share parts).
 Currently, the interner is created per-file, but it will be easy to use a per-thread or per-some-contex one. 
 
-We use a `TextUnit`, a newtyped `u32`, to store the length of the text.
+We use a `TextSize`, a newtyped `u32`, to store the length of the text.
 
 We currently use `SmolStr`, an small object optimized string to store text. 
 This was mostly relevant *before* we implmented tree interning, to avoid allocating common keywords and identifiers. We should switch to storing text data alongside the interned tokens. 

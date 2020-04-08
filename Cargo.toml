@@ -30,7 +30,7 @@ opt-level = 0
 opt-level = 0
 
 [patch.'crates-io']
-# rowan = { path = "../rowan" }
+rowan = { git = "https://github.com/CAD97/rowan.git", branch = "text-size" }
 
 [patch.'https://github.com/rust-lang/chalk.git']
 # chalk-solve = { path = "../chalk/chalk-solve" }

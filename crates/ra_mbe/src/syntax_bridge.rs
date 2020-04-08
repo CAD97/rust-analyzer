@@ -5,7 +5,7 @@ use ra_syntax::{
     ast::{self, make::tokens::doc_comment},
     tokenize, AstToken, Parse, SmolStr, SyntaxKind,
     SyntaxKind::*,
-    SyntaxNode, SyntaxToken, SyntaxTreeBuilder, TextRange, TextUnit, Token as RawToken, T,
+    SyntaxNode, SyntaxToken, SyntaxTreeBuilder, TextRange, TextSize, Token as RawToken, T,
 };
 use rustc_hash::FxHashMap;
 use tt::buffer::{Cursor, TokenBuffer};
@@ -99,11 +99,11 @@ pub fn parse_to_token_tree(text: &str) -> Option<(tt::Subtree, TokenMap)> {
 
     let mut conv = RawConvertor {
         text,
-        offset: TextUnit::default(),
+        offset: TextSize::default(),
         inner: tokens.iter(),
         id_alloc: TokenIdAlloc {
             map: Default::default(),
-            global_offset: TextUnit::default(),
+            global_offset: TextSize::default(),
             next_id: 0,
         },
     };
@@ -225,7 +225,7 @@ fn convert_doc_comment(token: &ra_syntax::SyntaxToken) -> Option<Vec<tt::TokenTr
 
 struct TokenIdAlloc {
     map: TokenMap,
-    global_offset: TextUnit,
+    global_offset: TextSize,
     next_id: u32,
 }
 
@@ -264,7 +264,7 @@ impl TokenIdAlloc {
 /// A Raw Token (straightly from lexer) convertor
 struct RawConvertor<'a> {
     text: &'a str,
-    offset: TextUnit,
+    offset: TextSize,
     id_alloc: TokenIdAlloc,
     inner: std::slice::Iter<'a, RawToken>,
 }
@@ -312,7 +312,7 @@ trait TokenConvertor {
         }
 
         result.push(if k.is_punct() {
-            assert_eq!(range.len().to_usize(), 1);
+            assert_eq!(range.len(), 1.into());
             let delim = match k {
                 T!['('] => Some((tt::DelimiterKind::Parenthesis, T![')'])),
                 T!['{'] => Some((tt::DelimiterKind::Brace, T!['}'])),
@@ -415,7 +415,7 @@ impl<'a> TokenConvertor for RawConvertor<'a> {
 
     fn bump(&mut self) -> Option<(Self::Token, TextRange)> {
         let token = self.inner.next()?;
-        let range = TextRange::offset_len(self.offset, token.len);
+        let range = TextRange::at(self.offset, token.len);
         self.offset += token.len;
 
         Some(((*token, &self.text[range]), range))
@@ -425,7 +425,7 @@ impl<'a> TokenConvertor for RawConvertor<'a> {
         let token = self.inner.as_slice().get(0).cloned();
 
         token.map(|it| {
-            let range = TextRange::offset_len(self.offset, it.len);
+            let range = TextRange::at(self.offset, it.len);
             (it, &self.text[range])
         })
     }
@@ -439,11 +439,11 @@ struct Convertor {
     id_alloc: TokenIdAlloc,
     current: Option<SyntaxToken>,
     range: TextRange,
-    punct_offset: Option<(SyntaxToken, TextUnit)>,
+    punct_offset: Option<(SyntaxToken, TextSize)>,
 }
 
 impl Convertor {
-    fn new(node: &SyntaxNode, global_offset: TextUnit) -> Convertor {
+    fn new(node: &SyntaxNode, global_offset: TextSize) -> Convertor {
         Convertor {
             id_alloc: { TokenIdAlloc { map: TokenMap::default(), global_offset, next_id: 0 } },
             current: node.first_token(),
@@ -455,7 +455,7 @@ impl Convertor {
 
 enum SynToken {
     Ordiniary(SyntaxToken),
-    Punch(SyntaxToken, TextUnit),
+    Punch(SyntaxToken, TextSize),
 }
 
 impl SynToken {
@@ -474,7 +474,7 @@ impl SrcToken for SynToken {
     fn to_char(&self) -> Option<char> {
         match self {
             SynToken::Ordiniary(_) => None,
-            SynToken::Punch(it, i) => it.text().chars().nth(i.to_usize()),
+            SynToken::Punch(it, i) => it.text().chars().nth((*i).into()),
         }
     }
     fn to_text(&self) -> SmolStr {
@@ -490,26 +490,26 @@ impl TokenConvertor for Convertor {
 
     fn bump(&mut self) -> Option<(Self::Token, TextRange)> {
         if let Some((punct, offset)) = self.punct_offset.clone() {
-            if offset.to_usize() + 1 < punct.text().len() {
-                let offset = offset + TextUnit::from_usize(1);
+            if usize::from(offset) + 1 < punct.text().len() {
+                let offset = offset + TextSize::from(1);
                 let range = punct.text_range();
                 self.punct_offset = Some((punct.clone(), offset));
-                let range = TextRange::offset_len(range.start() + offset, TextUnit::from_usize(1));
+                let range = TextRange::at(range.start() + offset, TextSize::from(1));
                 return Some((SynToken::Punch(punct, offset), range));
             }
         }
 
         let curr = self.current.clone()?;
-        if !curr.text_range().is_subrange(&self.range) {
+        if !self.range.contains_range(curr.text_range()) {
             return None;
         }
         self.current = curr.next_token();
 
         let token = if curr.kind().is_punct() {
             let range = curr.text_range();
-            let range = TextRange::offset_len(range.start(), TextUnit::from_usize(1));
-            self.punct_offset = Some((curr.clone(), TextUnit::from_usize(0)));
-            (SynToken::Punch(curr, TextUnit::from_usize(0)), range)
+            let range = TextRange::at(range.start(), TextSize::from(1));
+            self.punct_offset = Some((curr.clone(), TextSize::from(0)));
+            (SynToken::Punch(curr, TextSize::from(0)), range)
         } else {
             self.punct_offset = None;
             let range = curr.text_range();
@@ -521,19 +521,19 @@ impl TokenConvertor for Convertor {
 
     fn peek(&self) -> Option<Self::Token> {
         if let Some((punct, mut offset)) = self.punct_offset.clone() {
-            offset = offset + TextUnit::from_usize(1);
-            if offset.to_usize() < punct.text().len() {
+            offset = offset + TextSize::from(1);
+            if usize::from(offset) < punct.text().len() {
                 return Some(SynToken::Punch(punct, offset));
             }
         }
 
         let curr = self.current.clone()?;
-        if !curr.text_range().is_subrange(&self.range) {
+        if !self.range.contains_range(curr.text_range()) {
             return None;
         }
 
         let token = if curr.kind().is_punct() {
-            SynToken::Punch(curr, TextUnit::from_usize(0))
+            SynToken::Punch(curr, TextSize::zero())
         } else {
             SynToken::Ordiniary(curr)
         };
@@ -548,8 +548,8 @@ impl TokenConvertor for Convertor {
 struct TtTreeSink<'a> {
     buf: String,
     cursor: Cursor<'a>,
-    open_delims: FxHashMap<tt::TokenId, TextUnit>,
-    text_pos: TextUnit,
+    open_delims: FxHashMap<tt::TokenId, TextSize>,
+    text_pos: TextSize,
     inner: SyntaxTreeBuilder,
     token_map: TokenMap,
 
@@ -611,7 +611,7 @@ impl<'a> TreeSink for TtTreeSink<'a> {
                         tt::Leaf::Literal(lit) => lit.id,
                     };
                     let text = SmolStr::new(format!("{}", leaf));
-                    let range = TextRange::offset_len(self.text_pos, TextUnit::of_str(&text));
+                    let range = TextRange::at(self.text_pos, TextSize::of::<&str>(&text));
                     self.token_map.insert(id, range);
                     self.cursor = self.cursor.bump();
                     text
@@ -628,10 +628,8 @@ impl<'a> TreeSink for TtTreeSink<'a> {
                         self.cursor = self.cursor.bump();
                         if let Some(id) = parent.delimiter.map(|it| it.id) {
                             if let Some(open_delim) = self.open_delims.get(&id) {
-                                let open_range =
-                                    TextRange::offset_len(*open_delim, TextUnit::from_usize(1));
-                                let close_range =
-                                    TextRange::offset_len(self.text_pos, TextUnit::from_usize(1));
+                                let open_range = TextRange::at(*open_delim, TextSize::from(1));
+                                let close_range = TextRange::at(self.text_pos, TextSize::from(1));
                                 self.token_map.insert_delim(id, open_range, close_range);
                             }
                         }
@@ -642,7 +640,7 @@ impl<'a> TreeSink for TtTreeSink<'a> {
                 }
             };
             self.buf += &text;
-            self.text_pos += TextUnit::of_str(&text);
+            self.text_pos += TextSize::of::<&str>(&text);
         }
 
         let text = SmolStr::new(self.buf.as_str());
@@ -660,7 +658,7 @@ impl<'a> TreeSink for TtTreeSink<'a> {
             // other parts of RA such that we don't add whitespace here.
             if curr.spacing == tt::Spacing::Alone && curr.char != ';' {
                 self.inner.token(WHITESPACE, " ".into());
-                self.text_pos += TextUnit::of_char(' ');
+                self.text_pos += TextSize::of(' ');
             }
         }
     }

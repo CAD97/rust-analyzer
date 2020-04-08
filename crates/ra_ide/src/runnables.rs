@@ -148,11 +148,11 @@ mod tests {
         @r###"
         [
             Runnable {
-                range: [1; 21),
+                range: 1..21,
                 kind: Bin,
             },
             Runnable {
-                range: [22; 46),
+                range: 22..46,
                 kind: Test {
                     test_id: Path(
                         "test_foo",
@@ -160,7 +160,7 @@ mod tests {
                 },
             },
             Runnable {
-                range: [47; 81),
+                range: 47..81,
                 kind: Test {
                     test_id: Path(
                         "test_foo",
@@ -189,13 +189,13 @@ mod tests {
         @r###"
         [
             Runnable {
-                range: [1; 59),
+                range: 1..59,
                 kind: TestMod {
                     path: "test_mod",
                 },
             },
             Runnable {
-                range: [28; 57),
+                range: 28..57,
                 kind: Test {
                     test_id: Path(
                         "test_mod::test_foo1",
@@ -226,13 +226,13 @@ mod tests {
         @r###"
         [
             Runnable {
-                range: [23; 85),
+                range: 23..85,
                 kind: TestMod {
                     path: "foo::test_mod",
                 },
             },
             Runnable {
-                range: [46; 79),
+                range: 46..79,
                 kind: Test {
                     test_id: Path(
                         "foo::test_mod::test_foo1",
@@ -265,13 +265,13 @@ mod tests {
         @r###"
         [
             Runnable {
-                range: [41; 115),
+                range: 41..115,
                 kind: TestMod {
                     path: "foo::bar::test_mod",
                 },
             },
             Runnable {
-                range: [68; 105),
+                range: 68..105,
                 kind: Test {
                     test_id: Path(
                         "foo::bar::test_mod::test_foo1",
