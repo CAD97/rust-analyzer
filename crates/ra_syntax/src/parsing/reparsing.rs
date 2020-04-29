@@ -6,6 +6,8 @@
 //!   - otherwise, we search for the nearest `{}` block which contains the edit
 //!     and try to parse only this block.
 
+use std::sync::Arc;
+
 use ra_parser::Reparser;
 use ra_text_edit::AtomTextEdit;
 
@@ -26,7 +28,7 @@ pub(crate) fn incremental_reparse(
     node: &SyntaxNode,
     edit: &AtomTextEdit,
     errors: Vec<SyntaxError>,
-) -> Option<(GreenNode, Vec<SyntaxError>, TextRange)> {
+) -> Option<(Arc<GreenNode>, Vec<SyntaxError>, TextRange)> {
     if let Some((green, new_errors, old_range)) = reparse_token(node, &edit) {
         return Some((green, merge_errors(errors, new_errors, old_range, edit), old_range));
     }
@@ -40,7 +42,7 @@ pub(crate) fn incremental_reparse(
 fn reparse_token<'node>(
     root: &'node SyntaxNode,
     edit: &AtomTextEdit,
-) -> Option<(GreenNode, Vec<SyntaxError>, TextRange)> {
+) -> Option<(Arc<GreenNode>, Vec<SyntaxError>, TextRange)> {
     let prev_token = algo::find_covering_element(root, edit.delete).as_token()?.clone();
     let prev_token_kind = prev_token.kind();
     match prev_token_kind {
@@ -74,8 +76,7 @@ fn reparse_token<'node>(
                 new_text.pop();
             }
 
-            let new_token =
-                GreenToken::new(rowan::SyntaxKind(prev_token_kind.into()), new_text.into());
+            let new_token = GreenToken::new(rowan::SyntaxKind(prev_token_kind.into()), &new_text);
             Some((
                 prev_token.replace_with(new_token),
                 new_err.into_iter().collect(),
@@ -89,7 +90,7 @@ fn reparse_token<'node>(
 fn reparse_block<'node>(
     root: &'node SyntaxNode,
     edit: &AtomTextEdit,
-) -> Option<(GreenNode, Vec<SyntaxError>, TextRange)> {
+) -> Option<(Arc<GreenNode>, Vec<SyntaxError>, TextRange)> {
     let (node, reparser) = find_reparsable_node(root, edit.delete)?;
     let text = get_text_after_edit(node.clone().into(), edit);
 

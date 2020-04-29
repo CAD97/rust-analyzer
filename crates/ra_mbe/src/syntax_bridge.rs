@@ -503,7 +503,7 @@ impl SrcToken for SynToken {
         }
     }
     fn to_text(&self) -> SmolStr {
-        self.token().text().clone()
+        self.token().text().into()
     }
 }
 
@@ -672,9 +672,9 @@ impl<'a> TreeSink for TtTreeSink<'a> {
             self.text_pos += TextSize::of(text.as_str());
         }
 
-        let text = SmolStr::new(self.buf.as_str());
-        self.buf.clear();
+        let text = self.buf.as_str();
         self.inner.token(kind, text);
+        self.buf.clear();
 
         // Add whitespace between adjoint puncts
         let next = last.bump();

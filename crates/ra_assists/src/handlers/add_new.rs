@@ -3,7 +3,7 @@ use ra_syntax::{
     ast::{
         self, AstNode, NameOwner, StructKind, TypeAscriptionOwner, TypeParamsOwner, VisibilityOwner,
     },
-    TextSize, T,
+    SmolStr, TextSize, T,
 };
 use stdx::{format_to, SepBy};
 
@@ -101,14 +101,14 @@ fn generate_impl_text(strukt: &ast::StructDef, code: &str) -> String {
         format_to!(buf, "{}", type_params.syntax());
     }
     buf.push_str(" ");
-    buf.push_str(strukt.name().unwrap().text().as_str());
+    buf.push_str(strukt.name().unwrap().text());
     if let Some(type_params) = type_params {
         let lifetime_params = type_params
             .lifetime_params()
             .filter_map(|it| it.lifetime_token())
-            .map(|it| it.text().clone());
+            .map(|it| SmolStr::from(it.text()));
         let type_params =
-            type_params.type_params().filter_map(|it| it.name()).map(|it| it.text().clone());
+            type_params.type_params().filter_map(|it| it.name()).map(|it| SmolStr::from(it.text()));
         format_to!(buf, "<{}>", lifetime_params.chain(type_params).sep_by(", "))
     }
 

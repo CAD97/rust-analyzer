@@ -6,11 +6,13 @@
 //! The *real* implementation is in the (language-agnostic) `rowan` crate, this
 //! module just wraps its API.
 
+use std::sync::Arc;
+
 use rowan::{GreenNodeBuilder, Language};
 
-use crate::{Parse, SmolStr, SyntaxError, SyntaxKind, TextSize};
+use crate::{Parse, SyntaxError, SyntaxKind, TextSize};
 
-pub(crate) use rowan::{GreenNode, GreenToken};
+pub(crate) use rowan::{ArcBorrow, GreenNode, GreenToken};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum RustLanguage {}
@@ -41,7 +43,7 @@ pub struct SyntaxTreeBuilder {
 }
 
 impl SyntaxTreeBuilder {
-    pub(crate) fn finish_raw(self) -> (GreenNode, Vec<SyntaxError>) {
+    pub(crate) fn finish_raw(self) -> (Arc<GreenNode>, Vec<SyntaxError>) {
         let green = self.inner.finish();
         (green, self.errors)
     }
@@ -52,10 +54,10 @@ impl SyntaxTreeBuilder {
         if cfg!(debug_assertions) {
             crate::validation::validate_block_structure(&node);
         }
-        Parse::new(node.green().clone(), errors)
+        Parse::new(ArcBorrow::upgrade(node.green()), errors)
     }
 
-    pub fn token(&mut self, kind: SyntaxKind, text: SmolStr) {
+    pub fn token(&mut self, kind: SyntaxKind, text: &str) {
         let kind = RustLanguage::kind_to_raw(kind);
         self.inner.token(kind, text)
     }

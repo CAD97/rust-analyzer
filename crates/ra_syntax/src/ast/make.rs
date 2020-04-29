@@ -3,7 +3,7 @@
 use itertools::Itertools;
 use stdx::format_to;
 
-use crate::{ast, AstNode, SourceFile, SyntaxKind, SyntaxNode, SyntaxToken};
+use crate::{ast, ArcBorrow, AstNode, SourceFile, SyntaxKind, SyntaxNode, SyntaxToken};
 
 pub fn name(text: &str) -> ast::Name {
     ast_from_text(&format!("mod {};", text))
@@ -328,7 +328,7 @@ fn try_ast_from_text<N: AstNode>(text: &str) -> Option<N> {
 }
 
 fn unroot(n: SyntaxNode) -> SyntaxNode {
-    SyntaxNode::new_root(n.green().clone())
+    SyntaxNode::new_root(ArcBorrow::upgrade(n.green()))
 }
 
 pub mod tokens {
@@ -345,7 +345,7 @@ pub mod tokens {
             .syntax()
             .descendants_with_tokens()
             .filter_map(|it| it.into_token())
-            .find(|it| it.kind() == WHITESPACE && it.text().as_str() == " ")
+            .find(|it| it.kind() == WHITESPACE && it.text() == " ")
             .unwrap()
     }
 
@@ -373,7 +373,7 @@ pub mod tokens {
             .syntax()
             .descendants_with_tokens()
             .filter_map(|it| it.into_token())
-            .find(|it| it.kind() == WHITESPACE && it.text().as_str() == "\n")
+            .find(|it| it.kind() == WHITESPACE && it.text() == "\n")
             .unwrap()
     }
 

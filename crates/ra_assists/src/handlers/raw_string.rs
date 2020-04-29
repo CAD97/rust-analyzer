@@ -103,7 +103,7 @@ pub(crate) fn add_hash(ctx: AssistCtx) -> Option<Assist> {
 // ```
 pub(crate) fn remove_hash(ctx: AssistCtx) -> Option<Assist> {
     let token = ctx.find_token_at_offset(RAW_STRING)?;
-    let text = token.text().as_str();
+    let text = token.text();
     if text.starts_with("r\"") {
         // no hash to remove
         return None;
