@@ -111,7 +111,7 @@ impl QuoteOffsets {
 
 pub trait HasQuotes: AstToken {
     fn quote_offsets(&self) -> Option<QuoteOffsets> {
-        let text = self.text().as_str();
+        let text = self.text();
         let offsets = QuoteOffsets::new(text)?;
         let o = self.syntax().text_range().start();
         let offsets = QuoteOffsets {
@@ -142,7 +142,7 @@ pub trait HasStringValue: HasQuotes {
 
 impl HasStringValue for String {
     fn value(&self) -> Option<std::string::String> {
-        let text = self.text().as_str();
+        let text = self.text();
         let text = &text[self.text_range_between_quotes()? - self.syntax().text_range().start()];
 
         let mut buf = std::string::String::with_capacity(text.len());
@@ -161,7 +161,7 @@ impl HasStringValue for String {
 
 impl HasStringValue for RawString {
     fn value(&self) -> Option<std::string::String> {
-        let text = self.text().as_str();
+        let text = self.text();
         let text = &text[self.text_range_between_quotes()? - self.syntax().text_range().start()];
         Some(text.to_string())
     }
@@ -493,7 +493,7 @@ impl HasFormatSpecifier for String {
     fn char_ranges(
         &self,
     ) -> Option<Vec<(TextRange, Result<char, rustc_lexer::unescape::EscapeError>)>> {
-        let text = self.text().as_str();
+        let text = self.text();
         let text = &text[self.text_range_between_quotes()? - self.syntax().text_range().start()];
         let offset = self.text_range_between_quotes()?.start() - self.syntax().text_range().start();
 
@@ -514,7 +514,7 @@ impl HasFormatSpecifier for RawString {
     fn char_ranges(
         &self,
     ) -> Option<Vec<(TextRange, Result<char, rustc_lexer::unescape::EscapeError>)>> {
-        let text = self.text().as_str();
+        let text = self.text();
         let text = &text[self.text_range_between_quotes()? - self.syntax().text_range().start()];
         let offset = self.text_range_between_quotes()?.start() - self.syntax().text_range().start();
 

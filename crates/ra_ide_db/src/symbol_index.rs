@@ -349,7 +349,7 @@ fn to_symbol(node: &SyntaxNode) -> Option<(SmolStr, SyntaxNodePtr, TextRange)> {
     fn decl<N: NameOwner>(node: N) -> Option<(SmolStr, SyntaxNodePtr, TextRange)> {
         let name = node.name()?;
         let name_range = name.syntax().text_range();
-        let name = name.text().clone();
+        let name = name.text().into();
         let ptr = SyntaxNodePtr::new(node.syntax());
 
         Some((name, ptr, name_range))

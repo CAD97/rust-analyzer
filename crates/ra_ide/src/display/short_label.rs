@@ -92,6 +92,6 @@ where
 {
     let mut buf = node.visibility().map(|v| format!("{} ", v.syntax())).unwrap_or_default();
     buf.push_str(label);
-    buf.push_str(node.name()?.text().as_str());
+    buf.push_str(node.name()?.text());
     Some(buf)
 }

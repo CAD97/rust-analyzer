@@ -3,6 +3,7 @@
 use std::{
     fmt,
     ops::{self, RangeInclusive},
+    sync::Arc,
 };
 
 use itertools::Itertools;
@@ -10,8 +11,8 @@ use ra_text_edit::TextEditBuilder;
 use rustc_hash::FxHashMap;
 
 use crate::{
-    AstNode, Direction, NodeOrToken, SyntaxElement, SyntaxKind, SyntaxNode, SyntaxNodePtr,
-    SyntaxToken, TextRange, TextSize,
+    ArcBorrow, AstNode, Direction, NodeOrToken, SyntaxElement, SyntaxKind, SyntaxNode,
+    SyntaxNodePtr, SyntaxToken, TextRange, TextSize,
 };
 
 /// Returns ancestors of the node at the offset, sorted by length. This should
@@ -186,9 +187,10 @@ fn _insert_children(
         to_green_element(element)
     });
 
-    let mut old_children = parent.green().children().map(|it| match it {
-        NodeOrToken::Token(it) => NodeOrToken::Token(it.clone()),
-        NodeOrToken::Node(it) => NodeOrToken::Node(it.clone()),
+    let green = parent.green();
+    let mut old_children = green.children().map(|it| match it {
+        NodeOrToken::Token(it) => NodeOrToken::Token(ArcBorrow::upgrade(it)),
+        NodeOrToken::Node(it) => NodeOrToken::Node(ArcBorrow::upgrade(it)),
     });
 
     let new_children = match &position {
@@ -225,9 +227,10 @@ fn _replace_children(
 ) -> SyntaxNode {
     let start = position_of_child(parent, to_delete.start().clone());
     let end = position_of_child(parent, to_delete.end().clone());
-    let mut old_children = parent.green().children().map(|it| match it {
-        NodeOrToken::Token(it) => NodeOrToken::Token(it.clone()),
-        NodeOrToken::Node(it) => NodeOrToken::Node(it.clone()),
+    let green = parent.green();
+    let mut old_children = green.children().map(|it| match it {
+        NodeOrToken::Token(it) => NodeOrToken::Token(ArcBorrow::upgrade(it)),
+        NodeOrToken::Node(it) => NodeOrToken::Node(ArcBorrow::upgrade(it)),
     });
 
     let before = old_children.by_ref().take(start).collect::<Vec<_>>();
@@ -310,21 +313,23 @@ impl<'a> SyntaxRewriter<'a> {
     fn rewrite_self(
         &self,
         element: &SyntaxElement,
-    ) -> Option<NodeOrToken<rowan::GreenNode, rowan::GreenToken>> {
+    ) -> Option<NodeOrToken<Arc<rowan::GreenNode>, Arc<rowan::GreenToken>>> {
         if let Some(replacement) = self.replacement(&element) {
             return match replacement {
                 Replacement::Single(NodeOrToken::Node(it)) => {
-                    Some(NodeOrToken::Node(it.green().clone()))
+                    Some(NodeOrToken::Node(ArcBorrow::upgrade(it.green())))
                 }
                 Replacement::Single(NodeOrToken::Token(it)) => {
-                    Some(NodeOrToken::Token(it.green().clone()))
+                    Some(NodeOrToken::Token(ArcBorrow::upgrade(it.green())))
                 }
                 Replacement::Delete => None,
             };
         }
         let res = match element {
-            NodeOrToken::Token(it) => NodeOrToken::Token(it.green().clone()),
-            NodeOrToken::Node(it) => NodeOrToken::Node(self.rewrite_children(it).green().clone()),
+            NodeOrToken::Token(it) => NodeOrToken::Token(ArcBorrow::upgrade(it.green())),
+            NodeOrToken::Node(it) => {
+                NodeOrToken::Node(ArcBorrow::upgrade(self.rewrite_children(it).green()))
+            }
         };
         Some(res)
     }
@@ -345,7 +350,7 @@ enum Replacement {
 
 fn with_children(
     parent: &SyntaxNode,
-    new_children: Vec<NodeOrToken<rowan::GreenNode, rowan::GreenToken>>,
+    new_children: Vec<NodeOrToken<Arc<rowan::GreenNode>, Arc<rowan::GreenToken>>>,
 ) -> SyntaxNode {
     let len = new_children.iter().map(|it| it.text_len()).sum::<TextSize>();
     let new_node = rowan::GreenNode::new(rowan::SyntaxKind(parent.kind() as u16), new_children);
@@ -366,9 +371,11 @@ fn position_of_child(parent: &SyntaxNode, child: SyntaxElement) -> usize {
         .expect("element is not a child of current element")
 }
 
-fn to_green_element(element: SyntaxElement) -> NodeOrToken<rowan::GreenNode, rowan::GreenToken> {
+fn to_green_element(
+    element: SyntaxElement,
+) -> NodeOrToken<Arc<rowan::GreenNode>, Arc<rowan::GreenToken>> {
     match element {
-        NodeOrToken::Node(it) => it.green().clone().into(),
-        NodeOrToken::Token(it) => it.green().clone().into(),
+        NodeOrToken::Node(it) => ArcBorrow::upgrade(it.green()).into(),
+        NodeOrToken::Token(it) => ArcBorrow::upgrade(it.green()).into(),
     }
 }

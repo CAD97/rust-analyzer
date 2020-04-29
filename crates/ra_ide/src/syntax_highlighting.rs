@@ -201,7 +201,7 @@ pub(crate) fn highlight(
                 if let Some(name) =
                     fmt_macro_call.path().and_then(|p| p.segment()).and_then(|s| s.name_ref())
                 {
-                    match name.text().as_str() {
+                    match name.text() {
                         "format_args" | "format_args_nl" => {
                             format_string = parent
                                 .children_with_tokens()

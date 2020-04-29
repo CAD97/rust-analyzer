@@ -29,24 +29,21 @@ pub(crate) fn add_custom_impl(ctx: AssistCtx) -> Option<Assist> {
     let input = ctx.find_node_at_offset::<ast::AttrInput>()?;
     let attr = input.syntax().parent().and_then(ast::Attr::cast)?;
 
-    let attr_name = attr
+    let attr_node = attr
         .syntax()
         .descendants_with_tokens()
         .filter(|t| t.kind() == IDENT)
         .find_map(|i| i.into_token())
-        .filter(|t| *t.text() == "derive")?
-        .text()
-        .clone();
+        .filter(|t| t.text() == "derive")?;
+    let attr_name = attr_node.text();
 
-    let trait_token =
-        ctx.token_at_offset().find(|t| t.kind() == IDENT && *t.text() != attr_name)?;
+    let trait_token = ctx.token_at_offset().find(|t| t.kind() == IDENT && t.text() != attr_name)?;
 
     let annotated = attr.syntax().siblings(Direction::Next).find_map(ast::Name::cast)?;
     let annotated_name = annotated.syntax().text().to_string();
     let start_offset = annotated.syntax().parent()?.text_range().end();
 
-    let label =
-        format!("Add custom impl '{}' for '{}'", trait_token.text().as_str(), annotated_name);
+    let label = format!("Add custom impl '{}' for '{}'", trait_token.text(), annotated_name);
 
     ctx.add_assist(AssistId("add_custom_impl"), label, |edit| {
         edit.target(attr.syntax().text_range());
@@ -55,7 +52,7 @@ pub(crate) fn add_custom_impl(ctx: AssistCtx) -> Option<Assist> {
             .syntax()
             .descendants_with_tokens()
             .filter(|t| t.kind() == IDENT)
-            .filter_map(|t| t.into_token().map(|t| t.text().clone()))
+            .filter_map(|t| t.into_token().map(|t| SmolStr::from(t.text())))
             .filter(|t| t != trait_token.text())
             .collect::<Vec<SmolStr>>();
         let has_more_derives = !new_attr_input.is_empty();
@@ -63,7 +60,7 @@ pub(crate) fn add_custom_impl(ctx: AssistCtx) -> Option<Assist> {
 
         let mut buf = String::new();
         buf.push_str("\n\nimpl ");
-        buf.push_str(trait_token.text().as_str());
+        buf.push_str(trait_token.text());
         buf.push_str(" for ");
         buf.push_str(annotated_name.as_str());
         buf.push_str(" {\n");

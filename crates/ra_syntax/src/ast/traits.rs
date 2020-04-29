@@ -95,7 +95,7 @@ pub trait DocCommentsOwner: AstNode {
                 has_comments = true;
                 let prefix_len = comment.prefix().len();
 
-                let line: &str = comment.text().as_str();
+                let line: &str = comment.text();
 
                 // Determine if the prefix or prefix + 1 char is stripped
                 let pos =

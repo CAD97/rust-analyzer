@@ -112,7 +112,7 @@ fn add_missing_impl_members_inner(
             ast::ImplItem::TypeAliasDef(def) => def.name(),
             ast::ImplItem::ConstDef(def) => def.name(),
         }
-        .map(|it| it.text().clone())
+        .map(|it| it.text().into())
     };
 
     let missing_items = get_missing_impl_items(&ctx.sema, &impl_node)

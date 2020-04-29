@@ -1,6 +1,6 @@
 use ra_syntax::{
     ast::{self, AstNode, NameOwner, TypeParamsOwner},
-    TextSize,
+    SmolStr, TextSize,
 };
 use stdx::{format_to, SepBy};
 
@@ -28,7 +28,7 @@ use crate::{Assist, AssistCtx, AssistId};
 pub(crate) fn add_impl(ctx: AssistCtx) -> Option<Assist> {
     let nominal = ctx.find_node_at_offset::<ast::NominalDef>()?;
     let name = nominal.name()?;
-    ctx.add_assist(AssistId("add_impl"), format!("Implement {}", name.text().as_str()), |edit| {
+    ctx.add_assist(AssistId("add_impl"), format!("Implement {}", name.text()), |edit| {
         edit.target(nominal.syntax().text_range());
         let type_params = nominal.type_param_list();
         let start_offset = nominal.syntax().text_range().end();
@@ -38,14 +38,16 @@ pub(crate) fn add_impl(ctx: AssistCtx) -> Option<Assist> {
             format_to!(buf, "{}", type_params.syntax());
         }
         buf.push_str(" ");
-        buf.push_str(name.text().as_str());
+        buf.push_str(name.text());
         if let Some(type_params) = type_params {
             let lifetime_params = type_params
                 .lifetime_params()
                 .filter_map(|it| it.lifetime_token())
-                .map(|it| it.text().clone());
-            let type_params =
-                type_params.type_params().filter_map(|it| it.name()).map(|it| it.text().clone());
+                .map(|it| SmolStr::from(it.text()));
+            let type_params = type_params
+                .type_params()
+                .filter_map(|it| it.name())
+                .map(|it| SmolStr::from(it.text()));
 
             let generic_params = lifetime_params.chain(type_params).sep_by(", ");
             format_to!(buf, "<{}>", generic_params)

@@ -8,17 +8,17 @@ use ra_parser::SyntaxKind;
 
 use crate::{
     ast::{self, support, AstNode, AttrInput, NameOwner, SyntaxNode},
-    SmolStr, SyntaxElement, SyntaxToken, T,
+    ArcBorrow, SmolStr, SyntaxElement, SyntaxToken, T,
 };
 
 impl ast::Name {
-    pub fn text(&self) -> &SmolStr {
+    pub fn text(&self) -> &str {
         text_of_first_token(self.syntax())
     }
 }
 
 impl ast::NameRef {
-    pub fn text(&self) -> &SmolStr {
+    pub fn text(&self) -> &str {
         text_of_first_token(self.syntax())
     }
 
@@ -27,8 +27,10 @@ impl ast::NameRef {
     }
 }
 
-fn text_of_first_token(node: &SyntaxNode) -> &SmolStr {
-    node.green().children().next().and_then(|it| it.into_token()).unwrap().text()
+fn text_of_first_token(node: &SyntaxNode) -> &str {
+    let green = ArcBorrow::downgrade(node.green());
+    let token = ArcBorrow::downgrade(green.children().next().unwrap().into_token().unwrap());
+    token.text()
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -67,7 +69,7 @@ impl ast::Attr {
     pub fn simple_name(&self) -> Option<SmolStr> {
         let path = self.path()?;
         match (path.segment(), path.qualifier()) {
-            (Some(segment), None) => Some(segment.syntax().first_token()?.text().clone()),
+            (Some(segment), None) => Some(segment.syntax().first_token()?.text().into()),
             _ => None,
         }
     }

@@ -132,7 +132,7 @@ impl NavigationTarget {
         description: Option<String>,
     ) -> NavigationTarget {
         //FIXME: use `_` instead of empty string
-        let name = node.value.name().map(|it| it.text().clone()).unwrap_or_default();
+        let name = node.value.name().map(|it| SmolStr::from(it.text())).unwrap_or_default();
         let focus_range =
             node.value.name().map(|it| original_range(db, node.with_value(it.syntax())).range);
         let frange = original_range(db, node.map(|it| it.syntax()));
